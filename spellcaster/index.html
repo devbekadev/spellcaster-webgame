@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#080911" />
+    <meta name="description" content="A dark-fantasy hand-gesture survival game." />
+    <title>Spellcaster: The Arena</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main id="menu-screen" class="screen menu-screen">
+      <div class="menu-atmosphere" aria-hidden="true">
+        <div class="moon"></div>
+        <div class="sigil sigil-one"></div>
+        <div class="sigil sigil-two"></div>
+        <div class="horizon"></div>
+        <div class="menu-sparks"></div>
+      </div>
+      <div class="menu-content">
+        <div class="crest" aria-hidden="true"><span></span><i></i></div>
+        <p class="eyebrow">A gesture-controlled survival game</p>
+        <h1>Spellcaster<span>The Arena</span></h1>
+        <p class="menu-copy">The circle is breaking. Hold the line.</p>
+        <div class="menu-best">BEST SCORE <strong id="menu-best-score">0</strong></div>
+        <div class="menu-actions">
+          <button id="play-button" class="button button-primary"><span>Enter the arena</span><i aria-hidden="true">→</i></button>
+          <div class="secondary-actions">
+            <button id="how-to-button" class="button button-quiet">How to play</button>
+            <button id="settings-button" class="button button-quiet">Settings</button>
+          </div>
+        </div>
+        <p class="menu-footnote">Camera frames stay in your browser. No video is recorded or uploaded.</p>
+      </div>
+      <div class="corner-mark corner-mark-left" aria-hidden="true">I</div>
+      <div class="corner-mark corner-mark-right" aria-hidden="true">✦</div>
+    </main>
+
+    <section id="calibration-screen" class="screen calibration-screen hidden" aria-labelledby="calibration-title">
+      <div class="calibration-shell">
+        <header class="screen-header">
+          <button class="back-button" data-screen="menu" aria-label="Back to menu">←</button>
+          <div>
+            <p class="eyebrow">Prepare your hand</p>
+            <h2 id="calibration-title">Align your focus</h2>
+          </div>
+          <div class="phase-mark"><span>01</span> / 02</div>
+        </header>
+
+        <div class="calibration-grid">
+          <section class="camera-column" aria-label="Camera preview">
+            <div class="camera-frame">
+              <video id="camera-feed" autoplay playsinline muted></video>
+              <canvas id="hand-overlay" width="640" height="480" aria-hidden="true"></canvas>
+              <div id="preview-placeholder" class="preview-placeholder">
+                <span class="camera-glyph" aria-hidden="true"></span>
+                <strong>Camera preview</strong>
+                <span>Allow access to begin local hand tracking</span>
+              </div>
+              <div class="camera-corner camera-corner-tl"></div>
+              <div class="camera-corner camera-corner-br"></div>
+              <div id="tracking-badge" class="tracking-badge" data-state="offline">
+                <span class="status-light"></span>
+                <span id="tracking-text">NO HAND DETECTED</span>
+              </div>
+            </div>
+            <div class="camera-foot">
+              <span><i class="privacy-dot"></i> LOCAL CAMERA · NEVER RECORDED</span>
+              <button id="preview-toggle" class="text-button" type="button">Hide preview</button>
+            </div>
+            <p id="camera-help" class="camera-help">Camera access is requested only after you enter calibration.</p>
+          </section>
+
+          <section class="calibration-column">
+            <div class="setup-status">
+              <div class="setup-status-row">
+                <span class="status-icon" aria-hidden="true">01</span>
+                <span>Camera permission</span>
+                <strong id="camera-status">Waiting</strong>
+              </div>
+              <div class="setup-status-row">
+                <span class="status-icon" aria-hidden="true">02</span>
+                <span>MediaPipe hand model</span>
+                <strong id="model-status">Not loaded</strong>
+              </div>
+            </div>
+
+            <div class="gesture-heading">
+              <div>
+                <p class="eyebrow">Four gestures · one arena</p>
+                <h3>Test your spells</h3>
+              </div>
+              <span id="gesture-status" class="gesture-status">Waiting for a hand</span>
+            </div>
+            <div class="gesture-list">
+              <div class="gesture-card" data-gesture="fist">
+                <span class="gesture-symbol symbol-fire" aria-hidden="true"></span>
+                <span class="gesture-copy"><strong>Fireball</strong><small>Close your fist</small></span>
+                <span class="gesture-check" aria-label="Not tested"></span>
+              </div>
+              <div class="gesture-card" data-gesture="open-palm">
+                <span class="gesture-symbol symbol-shield" aria-hidden="true"></span>
+                <span class="gesture-copy"><strong>Magic shield</strong><small>Open your palm</small></span>
+                <span class="gesture-check" aria-label="Not tested"></span>
+              </div>
+              <div class="gesture-card" data-gesture="two-fingers">
+                <span class="gesture-symbol symbol-lightning" aria-hidden="true"></span>
+                <span class="gesture-copy"><strong>Lightning</strong><small>Raise index + middle</small></span>
+                <span class="gesture-check" aria-label="Not tested"></span>
+              </div>
+              <div class="gesture-card" data-gesture="pinch">
+                <span class="gesture-symbol symbol-telekinesis" aria-hidden="true"></span>
+                <span class="gesture-copy"><strong>Telekinesis</strong><small>Pinch thumb + index</small></span>
+                <span class="gesture-check" aria-label="Not tested"></span>
+              </div>
+            </div>
+
+            <div class="calibration-actions">
+              <button id="enable-camera" class="button button-secondary">Enable camera</button>
+              <button id="start-game" class="button button-primary" disabled>Start the game <i aria-hidden="true">→</i></button>
+            </div>
+            <button id="keyboard-start" class="text-button keyboard-start hidden" type="button">Camera unavailable? Play with mouse &amp; keyboard</button>
+            <p class="calibration-note">Keep your hand in frame. A short hold stabilizes each gesture and prevents accidental casts.</p>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section id="game-screen" class="screen game-screen hidden" aria-label="Spellcaster arena">
+      <canvas id="game-canvas" width="1280" height="720" aria-label="Magical arena battlefield"></canvas>
+
+      <header class="game-hud">
+        <div class="hud-vitals">
+          <div class="health-label"><span>VITAL FORCE</span><strong id="health-value">100</strong></div>
+          <div class="health-track"><span id="health-fill"></span></div>
+          <div class="life-row" aria-label="Lives remaining"><span class="life-heart"></span><span class="life-heart"></span><span class="life-heart"></span></div>
+        </div>
+        <div class="hud-center">
+          <span class="hud-kicker">WAVE</span>
+          <strong id="wave-value">01</strong>
+          <span id="enemy-count" class="enemy-count">THREATS · 0</span>
+        </div>
+        <div class="hud-score">
+          <span class="hud-kicker">SCORE</span>
+          <strong id="score-value">000000</strong>
+          <span class="score-caption">ARCANE TRIAL</span>
+        </div>
+      </header>
+
+      <div class="arena-title" aria-hidden="true"><span>THE VEIL CIRCLE</span><i></i></div>
+
+      <div class="spell-dock" aria-label="Spell cooldowns">
+        <button class="spell-control" data-spell="fireball" type="button" aria-label="Cast fireball">
+          <span class="spell-orb spell-orb-fire"></span><span class="spell-name">Fireball</span><kbd>1</kbd><span class="cooldown-ring"></span>
+        </button>
+        <button class="spell-control" data-spell="shield" type="button" aria-label="Cast magic shield">
+          <span class="spell-orb spell-orb-shield"></span><span class="spell-name">Shield</span><kbd>2</kbd><span class="cooldown-ring"></span>
+        </button>
+        <button class="spell-control" data-spell="lightning" type="button" aria-label="Cast lightning">
+          <span class="spell-orb spell-orb-lightning"></span><span class="spell-name">Lightning</span><kbd>3</kbd><span class="cooldown-ring"></span>
+        </button>
+        <button class="spell-control" data-spell="telekinesis" type="button" aria-label="Use telekinesis">
+          <span class="spell-orb spell-orb-telekinesis"></span><span class="spell-name">Telekinesis</span><kbd>4</kbd><span class="cooldown-ring"></span>
+        </button>
+      </div>
+
+      <div class="game-message" id="game-message" role="status">The circle stirs.</div>
+      <div class="game-tools">
+        <div id="game-tracking" class="game-tracking" data-state="offline"><span class="status-light"></span><span id="game-tracking-text">KEYBOARD AIM</span></div>
+        <button id="game-preview-toggle" class="icon-button" type="button" aria-label="Hide camera preview" title="Toggle camera preview">
+          <span class="preview-icon" aria-hidden="true"></span>
+        </button>
+        <button id="leave-game" class="icon-button exit-button" type="button" aria-label="Return to menu" title="Return to menu">Ⅱ</button>
+      </div>
+      <div id="game-camera-panel" class="game-camera-panel">
+        <video id="game-camera" autoplay playsinline muted></video>
+        <span class="camera-panel-label">LIVE HAND TRACKING</span>
+      </div>
+    </section>
+
+    <section id="gameover-screen" class="screen gameover-screen hidden" aria-labelledby="gameover-title">
+      <div class="gameover-glow" aria-hidden="true"></div>
+      <div class="gameover-panel">
+        <p class="eyebrow">The arena falls silent</p>
+        <h2 id="gameover-title">Your flame<br /><em>still burns.</em></h2>
+        <p class="gameover-subtitle">A worthy trial. The circle remembers.</p>
+        <div class="result-grid">
+          <div><span>FINAL SCORE</span><strong id="final-score">0</strong></div>
+          <div><span>BEST SCORE</span><strong id="final-best">0</strong></div>
+          <div><span>WAVES SURVIVED</span><strong id="final-wave">0</strong></div>
+          <div><span>FOES DEFEATED</span><strong id="final-defeated">0</strong></div>
+        </div>
+        <div class="gameover-actions">
+          <button id="restart-button" class="button button-primary">Rise again <i aria-hidden="true">↻</i></button>
+          <button id="menu-button" class="button button-quiet">Main menu</button>
+        </div>
+      </div>
+    </section>
+
+    <div id="dialog-backdrop" class="dialog-backdrop hidden">
+      <section id="how-to-dialog" class="dialog-panel hidden" role="dialog" aria-modal="true" aria-labelledby="how-to-title">
+        <button class="dialog-close" data-close-dialog type="button" aria-label="Close">×</button>
+        <p class="eyebrow">Your hands are the spellbook</p>
+        <h2 id="how-to-title">How to survive</h2>
+        <p class="dialog-intro">Keep the player in the center. Aim with your hand; spells favor the enemy nearest your focus.</p>
+        <div class="howto-list">
+          <p><strong>Fist</strong><span>Launch a seeking fireball.</span><kbd>1</kbd></p>
+          <p><strong>Open palm</strong><span>Raise a short-lived damage ward.</span><kbd>2</kbd></p>
+          <p><strong>Two fingers</strong><span>Strike the focused enemy instantly.</span><kbd>3</kbd></p>
+          <p><strong>Pinch + move</strong><span>Grab a foe, then release to throw it.</span><kbd>4</kbd></p>
+        </div>
+        <p class="dialog-foot">No webcam? Use the mouse to aim, click to fire, and hold <kbd>4</kbd> to grab and release to throw.</p>
+      </section>
+
+      <section id="settings-dialog" class="dialog-panel hidden" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+        <button class="dialog-close" data-close-dialog type="button" aria-label="Close">×</button>
+        <p class="eyebrow">Tune your senses</p>
+        <h2 id="settings-title">Settings</h2>
+        <label class="volume-setting" for="sfx-volume"><span>Spell sound</span><input id="sfx-volume" type="range" min="0" max="100" value="65" /></label>
+        <label class="toggle-setting" for="preview-setting"><span>Camera preview</span><input id="preview-setting" type="checkbox" checked /></label>
+        <p class="dialog-foot">Turning off the preview never stops local hand tracking.</p>
+      </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/hand-pose-detection@2.0.1/dist/hand-pose-detection.min.js"></script>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
